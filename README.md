@@ -39,9 +39,9 @@ The purpose of this project is twofold: to streamline my personal workflow and t
 	sudo mysql -u root -p
 	```
 
-	Upon successful login, you should see this screen.
+	Upon successful login, you should see this screen:
 	```console
-	jc5671@MC5671:~$ sudo mysql -u jc5671 -p
+	jc5671@MC5671:~$ sudo mysql -u root -p
 	Enter password: 
 	Welcome to the MariaDB monitor.  Commands end with ; or \g.
 	Your MariaDB connection id is 314
@@ -111,20 +111,20 @@ The easiest way to run this program is using VS Code.
 2. In VS Code, click `File > Open Folder` and open the `CommissionWorkAccountingMain` folder only.
 3. Open Command Palette `View > Command Palette`.
 4. Search for `Python: Create Environment` and select it. 
-5. Select `Venv`
+5. Select `Venv`.
 6. Select the latest Python interpreter.
-7. Check the `requirements.txt` and click ok.
-8. To run it, select `Run > Run Without Debugging` (it might take a while to start the first time)
+7. Check the `requirements.txt` and click `ok`.
+8. To run it, select `Run > Run Without Debugging` (it might take a while to start the first time).
 9. A sample dataset is included in the project's root directory called `Commission Log - obfuscated.csv`. Navigate to the `Maintenance Tab`, click `Append From CSV`, then locate and select `Commission Log - obfuscated.csv`. Now, the database should be populated.
 
-Once everything is installed, repeat steps 1 and 7 to re-run.
+To re-run once everything is installed, repeat steps 1 and 7.
 
 ## How It Works
 <p align="center">
   <img src="./img/DFD.svg" width="100%" />
 </p>
 
-This data flow diagram shows how each class interacts with each other and the database. However, this is a high-level view, and it does not show all classes, such as DateEditDelegate and InsertDialog, which are only used in the Database Tab.
+This data flow diagram shows how each class interacts with each other and the database. Note that this is a high-level view, and it does not show all classes, such as DateEditDelegate and InsertDialog, which are only used in the Database Tab.
 
 ### 1. The ML_MODEL
 The `ML_MODEL` class predicts pay based on job type and hours worked. While the model was simpler during the research phase, it now incorporates more features to improve performance. These features include:
@@ -147,12 +147,12 @@ The `ML_MODEL` class predicts pay based on job type and hours worked. While the 
 
   1. **Significant database changes (retrain load factor > 20%)**  
      - If 20% or more of the entries have changed, the model is retrained to ensure accurate predictions.  
-     - Predictions for all entries are then generated and cached. The predictions for the requested IDs are returned.
+     - All predictions are then generated and cached, and the predictions for the requested IDs are returned.
 
   2. **First-time startup or after `ML_MODEL.reset()`**  
      - The method attempts to load a saved model from `model.pkl`.  
-     - If no model exists, a full training run is performed.  
-     - All predictions are generated and cached, and the predictions for the requested IDs are returned.
+     - If no model exists, a full training run is performed.
+     - All predictions are then generated and cached, and the predictions for the requested IDs are returned.
 
   3. **Normal operation: Predict only what is necessary**  
      - Only IDs not present in the prediction cache are predicted.  
