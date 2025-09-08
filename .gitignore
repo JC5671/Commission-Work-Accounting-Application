@@ -9,3 +9,7 @@ env/
 # (Optional) Ignore Python cache files
 __pycache__/
 *.pyc
+
+# Ignore ML specific data
+CommissionWorkAccountingMain/model.pkl
+CommissionWorkAccountingMain/modelConfig.json
