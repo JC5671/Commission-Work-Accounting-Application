@@ -6,8 +6,8 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QTabWidget, # F
 							QStyledItemDelegate, # Delegate for date in table
 							QLabel, QLineEdit, QDateEdit, QComboBox, # Other general widgets
 							QCheckBox, QPushButton, QRadioButton, QButtonGroup) 
-from PyQt6.QtCore import Qt, QDate, QTimer
-from PyQt6.QtGui import QDoubleValidator
+from PyQt6.QtCore import Qt, QDate, QTimer, QRegularExpression
+from PyQt6.QtGui import QDoubleValidator, QRegularExpressionValidator
 
 # Libraries for ML
 import pandas as pd
@@ -29,6 +29,10 @@ import os # for checking if file is exist
 import mysql.connector # for database queries
 import json # for parsing json
 from datetime import datetime # for converting datetime formats
+
+# Global variables
+decimalRegex = QRegularExpression(r"^\d+(\.\d{1,2})?$")
+decimalRegexValidator = QRegularExpressionValidator(decimalRegex)
 
 # User database configuration
 config = {
@@ -562,12 +566,12 @@ class InsertDialog(QDialog):
 		self.layout.addWidget(self.jobTypeInput, 2, 1)
 
 		# Initialize the hours Worked Input
-		self.hoursWorkedInput.setValidator(QDoubleValidator(0.0, 24.0, 2))
+		self.hoursWorkedInput.setValidator(decimalRegexValidator)
 		self.layout.addWidget(QLabel("Hours Worked *"), 3, 0)
 		self.layout.addWidget(self.hoursWorkedInput, 3, 1)
 
 		# Initialize the Pay Input
-		self.payInput.setValidator(QDoubleValidator(0.0, 10000.0, 2))
+		self.payInput.setValidator(decimalRegexValidator)
 		self.layout.addWidget(QLabel("Pay ($)"), 4, 0)
 		self.layout.addWidget(self.payInput, 4, 1)
 
@@ -807,12 +811,17 @@ class DashboardTab(QWidget):
 		self.statsSection["titleLabel"].setStyleSheet(styleSheet)
 		self.statsSection["titleLabel"].setObjectName("statsTitle")
 		# Initialize the weekly pay
+		self.statsSection["avgWeeklyPayLineEdit"].setFocusPolicy(Qt.FocusPolicy.NoFocus)
+		self.statsSection["medianWeeklyPayLineEdit"].setFocusPolicy(Qt.FocusPolicy.NoFocus)
 		self.statsSection["avgWeeklyPayLineEdit"].setReadOnly(True)
 		self.statsSection["medianWeeklyPayLineEdit"].setReadOnly(True)
 		# Initialize pay per job
+		self.statsSection["avgPayPerJobLineEdit"].setFocusPolicy(Qt.FocusPolicy.NoFocus)
+		self.statsSection["medianPayPerJobLineEdit"].setFocusPolicy(Qt.FocusPolicy.NoFocus)
 		self.statsSection["avgPayPerJobLineEdit"].setReadOnly(True)
 		self.statsSection["medianPayPerJobLineEdit"].setReadOnly(True)
 		# Initialize the hourly rates
+		self.statsSection["equivalentPayRateLineEdit"].setFocusPolicy(Qt.FocusPolicy.NoFocus)
 		self.statsSection["equivalentPayRateLineEdit"].setReadOnly(True)
 		# Configure the layout positioning
 		self.statsSection["layout"].addWidget(self.statsSection["titleLabel"], 0, 0, 1, 2, alignment=Qt.AlignmentFlag.AlignHCenter)
@@ -1040,6 +1049,7 @@ class DatabaseTab(QWidget):
 		# Backend Fields
 		self.dbConn = dbConn # database sql connection
 		self.MLmodel = MLmodel
+		self.reRender = False # used to signal if there are changes from maintenance tab
 		self.dashboardTab = dashboardTab # ref to the dashboard to signal db change
 		
 		# UI Fields
@@ -1205,18 +1215,18 @@ class DatabaseTab(QWidget):
 		self.filterByHoursWorked["checkBox"].setProperty("class", "sublabel")
 		self.filterByHoursWorked["checkBox"].setStyleSheet(styleSheet)
 		self.filterByHoursWorked["checkBox"].toggled.connect(lambda: self.renderFiltersUI(self.filterByHoursWorked))
-		self.filterByHoursWorked["fromLineEdit"].setValidator(QDoubleValidator(0.0, 24.0, 2))
+		self.filterByHoursWorked["fromLineEdit"].setValidator(decimalRegexValidator)
 		self.filterByHoursWorked["fromLineEdit"].textChanged.connect(self.renderTable)
-		self.filterByHoursWorked["toLineEdit"].setValidator(QDoubleValidator(0.0, 24.0, 2))
+		self.filterByHoursWorked["toLineEdit"].setValidator(decimalRegexValidator)
 		self.filterByHoursWorked["toLineEdit"].textChanged.connect(self.renderTable)
 
 		# Initialize Pay filter format and connects
 		self.filterByPay["checkBox"].setProperty("class", "sublabel")
 		self.filterByPay["checkBox"].setStyleSheet(styleSheet)
 		self.filterByPay["checkBox"].toggled.connect(lambda: self.renderFiltersUI(self.filterByPay))
-		self.filterByPay["fromLineEdit"].setValidator(QDoubleValidator(0.0, 10000.0, 2))
+		self.filterByPay["fromLineEdit"].setValidator(decimalRegexValidator)
 		self.filterByPay["fromLineEdit"].textChanged.connect(self.renderTable)
-		self.filterByPay["toLineEdit"].setValidator(QDoubleValidator(0.0, 10000.0, 2))
+		self.filterByPay["toLineEdit"].setValidator(decimalRegexValidator)
 		self.filterByPay["toLineEdit"].textChanged.connect(self.renderTable)
 
 	def initSortsUI(self):
@@ -1302,16 +1312,14 @@ class DatabaseTab(QWidget):
 		if self.filterByDate["checkBox"].isChecked():
 			# Update the from and to QDates from oldest to newest if marked by currentDataUpdate
 			if currentDataUpdate is self.filterByDate: # compare references
-				oldestDate = None
-				newestDate = None
+				oldestDate = datetime.today()
+				newestDate = datetime.today()
 				try:
 					with self.dbConn.cursor() as cursor:
-						cursor.execute("SELECT MIN(job_date) FROM jobs")
-						rows = cursor.fetchone()
-						oldestDate = rows[0]
-						cursor.execute("SELECT MAX(job_date) FROM jobs")
-						rows = cursor.fetchone()
-						newestDate = rows[0]
+						cursor.execute("SELECT MIN(job_date), MAX(job_date) FROM jobs")
+						rows = cursor.fetchall()
+						oldestDate = rows[0][0] if rows[0][0] != None else oldestDate
+						newestDate = rows[0][1]	if rows[0][1] != None else newestDate					
 				except Exception as e:
 					error(title="Database Error", 
 						msg=f"Database Error in DatabaseTab.renderFiltersUI():\n\n{e}", 
@@ -1953,7 +1961,7 @@ class MaintenanceTab(QWidget):
 	
 	# ***************************** GUI and INITS *****************************
 
-	def __init__(self, dbConn, MLmodel, dashboardTab):
+	def __init__(self, dbConn, MLmodel, dashboardTab, databaseTab):
 		super().__init__()
 		
 		# ------------------------ Field Declarations ------------------------
@@ -1962,6 +1970,7 @@ class MaintenanceTab(QWidget):
 		self.dbConn = dbConn
 		self.MLmodel = MLmodel
 		self.dashboardTab = dashboardTab # used to signal re render
+		self.databaseTab = databaseTab # used to signal re render
 
 		# UI Fields
 		self.layout = QVBoxLayout()
@@ -2062,6 +2071,7 @@ class MaintenanceTab(QWidget):
 		# ------------ Signal to dashboard tab that db is changed ------------
 
 		self.dashboardTab.reRender = True
+		self.databaseTab.reRender = True
 		
 		# ------------------- Display Confirmation Message -------------------
 
@@ -2134,6 +2144,7 @@ class MaintenanceTab(QWidget):
 
 		# Signal to dashboard tab that db is changed
 		self.dashboardTab.reRender = True
+		self.databaseTab.reRender = True
 
 		# ------------------- Display Confirmation Message -------------------
 
@@ -2193,7 +2204,7 @@ class MainWindow(QMainWindow):
 		# Configure the tabs / new pages
 		self.dashboardTab = DashboardTab(self.dbConn) 
 		self.databaseTab = DatabaseTab(self.dbConn, self.MLmodel, self.dashboardTab)
-		self.maintenanceTab = MaintenanceTab(self.dbConn, self.MLmodel, self.dashboardTab)
+		self.maintenanceTab = MaintenanceTab(self.dbConn, self.MLmodel, self.dashboardTab, self.databaseTab)
 		self.tabs.addTab(self.dashboardTab, "Dashboard")
 		self.tabs.addTab(self.databaseTab, "Database")
 		self.tabs.addTab(self.maintenanceTab, "Maintenance")
@@ -2210,7 +2221,17 @@ class MainWindow(QMainWindow):
 				self.dashboardTab.render()
 		elif tabIndex == 1:
 			# print("on database tab")
-			self.databaseTab.renderTable()
+			if self.databaseTab.reRender:
+				# uncheck every filters
+				self.databaseTab.filterByDate["checkBox"].setChecked(False)
+				self.databaseTab.filterByJobType["checkBox"].setChecked(False)
+				self.databaseTab.filterByHoursWorked["checkBox"].setChecked(False)
+				self.databaseTab.filterByPay["checkBox"].setChecked(False)
+				# render filters and UI
+				self.databaseTab.renderFiltersUI()
+				self.databaseTab.renderTable()
+				# set to false
+				self.databaseTab.reRender = False
 		elif tabIndex == 2:
 			# print("on maintenance tab")
 			pass
