@@ -1,27 +1,45 @@
 # Commission Work Accounting Application
 
+<p align="left">
+  <img src="./img/dashboardTab.png" width="100%" />
+</p>
+
+<p align="left">
+  <img src="./img/databaseTab.png" width="100%" />
+</p>
+
+<p align="left">
+  <img src="./img/maintenanceTab.png" width="100%" />
+</p>
+
 ## The Motivation
-Due to the nature of my work being commission-based role, the pay rate varies, and payment is not immediately released until paycheck day. Previously, I used Excel to track data (date, job name, job type, hours worked, and pay) and calculate the average pay rate to extrapolate future pay. 
+Due to the nature of my work being a commission-based role, the pay rate varies, and payment is not immediately released until paycheck day. Previously, I used Excel to track data (date, job name, job type, hours worked, and pay) and calculate the average pay rate to extrapolate future pay. 
 
-After tinkering with machine learning in a separate project, [Machine Learning Research for Commission Work](https://github.com/JC5671/Machine-Learning-Research-for-Commission-Work), I found a strong correlation showing that job type and hours worked can be used to predict future pay, particularly using a Decision Tree Regressor model.
+After experimenting with machine learning in a separate project, [Machine Learning Research for Commission Work](https://github.com/JC5671/Machine-Learning-Research-for-Commission-Work), I found a strong correlation showing that job type and hours worked can be used to predict future pay, particularly using a Decision Tree Regressor model.
 
-The goal of this project is to strengthen my skills in Python, GUI development, machine learning, and database management by creating a full application. This application allows me to log job entries into a custom database interface where I can sort, filter, search, insert, edit, and delete entries — all tailored to my workflow. It also generates statistics and charts, and incorporates predictive modeling with a Decision Tree Regressor. To accomplish this, I am using PyQt6 for the GUI, MariaDB for the database, scikit-learn for the machine learning component, and matplotlib for charting.
+Building on those insights, I decided to create a full [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) application that allows me to log job entries into a custom database interface where I can sort, filter, search, insert, edit, and delete records — all tailored to my workflow. It also generates statistics and charts, and incorporates predictive modeling using a Decision Tree Regressor.
+
+The purpose of this project is twofold: to streamline my personal workflow and to strengthen my technical skills. Along the way, I worked with:
+1. Python
+2. GUI Development (PyQt6)
+3. Machine Learning (scikit-learn Decision Tree Regressor)
+4. Database Management (MariaDB and Python MySQL Connector)
 
 ## How to Install
 ### Database Setup
 1. **Installing MariaDB**
 
-	This application uses MariaDB. Check out their official website on how to install it on your specific OS [https://mariadb.org/](https://mariadb.org/).
+	This application uses MariaDB. Check out their official website ([https://mariadb.org/](https://mariadb.org/)) on how to install it on your specific OS.
 
-2. **Login to Database**
+2. **Log in to the Database**
 
-	After installing MariaDB, open up terminal and type this command along with password:
+	After installing MariaDB, open up the terminal and type this command along with your password:
 
 	```bash
-	sudo mysql -u your_username -p # change your_username to your username
+	sudo mysql -u root -p
 	```
 
-	Upon sucessful login, you should see this screen
+	Upon successful login, you should see this screen.
 	```console
 	jc5671@MC5671:~$ sudo mysql -u jc5671 -p
 	Enter password: 
@@ -54,7 +72,7 @@ The goal of this project is to strengthen my skills in Python, GUI development, 
 
 4. **Confirm Database and User Are Ready**
 
-	Make sure that `commissionWorkAccountingDB` appears on the Database and `user1` appears on the User table.
+	Make sure that `commissionWorkAccountingDB` appears on the `Database` and `user1` appears on the `User` table.
 
 	```console
 	MariaDB [commissionWorkAccountingDB]> SHOW databases;
@@ -89,21 +107,24 @@ The goal of this project is to strengthen my skills in Python, GUI development, 
 
 The easiest way to run this program is using VS Code.
 
-1. On VS Code, click `File > Open Folder` and open the `CommissionWorkAccountingMain` folder only.
-2. Open Command Palette `View > Command Palette`.
-3. Search for `Python: Create Environment` and select it. 
-4. Select `Venv`
-5. Select the latest python interpreter.
-6. Check the `requirements.txt` and click ok.
-7. To run it, select `Run > Run Without Debugging` (it might take a while to start the first time)
-8. A sample dataset is included on the project's root directory called `Commission Log - obfuscated.csv`. Navigate to the `Maintenance Tab`, click `Append From CSV`, then locate and select `Commission Log - obfuscated.csv`. Now, the database should be populated.
+1. Make sure that Python 3 is installed. [https://www.python.org/](https://www.python.org/).
+2. In VS Code, click `File > Open Folder` and open the `CommissionWorkAccountingMain` folder only.
+3. Open Command Palette `View > Command Palette`.
+4. Search for `Python: Create Environment` and select it. 
+5. Select `Venv`
+6. Select the latest Python interpreter.
+7. Check the `requirements.txt` and click ok.
+8. To run it, select `Run > Run Without Debugging` (it might take a while to start the first time)
+9. A sample dataset is included in the project's root directory called `Commission Log - obfuscated.csv`. Navigate to the `Maintenance Tab`, click `Append From CSV`, then locate and select `Commission Log - obfuscated.csv`. Now, the database should be populated.
+
+Once everything is installed, repeat steps 1 and 7 to re-run.
 
 ## How It Works
 <p align="center">
-  <img src="./img/DFD.svg" width="90%" />
+  <img src="./img/DFD.svg" width="100%" />
 </p>
 
-This data flow diagram shows how each class interact with each other and the database. However, this is high level view and it does not show all classes such as DateEditDelegate and InsertDialog, which are only used in the Database Tab.
+This data flow diagram shows how each class interacts with each other and the database. However, this is a high-level view, and it does not show all classes, such as DateEditDelegate and InsertDialog, which are only used in the Database Tab.
 
 ### 1. The ML_MODEL
 The `ML_MODEL` class predicts pay based on job type and hours worked. While the model was simpler during the research phase, it now incorporates more features to improve performance. These features include:
@@ -141,16 +162,16 @@ The `ML_MODEL` class predicts pay based on job type and hours worked. While the 
 
 ### 2. The Dashboard Tab
 <p align="left">
-  <img src="./img/dashboardTab.png" width="80%" />
+  <img src="./img/dashboardTab.png" width="100%" />
 </p>
 
-The dashboard tab's job is to pull data from the database and display as a chart and summary statistics.
+The dashboard tab's job is to pull data from the database and display it as a chart and summary statistics.
 
 - **Charting**
 	
-	The chart shows date in the x-axis and cumulative pay in the y-axis. To achieve this, it pulls job_date and job_pay from the database in ascending order, seperate the two, reformat the pay to be cumulative in python, and finally plot it with matplotlib. 
+	The chart shows the date in the x-axis and cumulative pay in the y-axis. To achieve this, it pulls job_date and job_pay from the database in ascending order, seperate the two, reformat the pay to be cumulative in python, and finally plot it with matplotlib. 
 	
-	Additionally, it displays the final cumulative pay, has a button to save the chart to svg, and it also has a dropdown options to select interval. The dropdown option includes ALL, YTD, and other years that is available from the database. Depending on the selected dropdown interval, the sql query may vary:
+	Additionally, it displays the final cumulative pay, has a button to save the chart to SVG, and it also has a dropdown option to select an interval. The dropdown option includes ALL, YTD, and other years that are available from the database. Depending on the selected dropdown interval, the SQL query may vary:
 	
 	- For ALL
 	
@@ -172,7 +193,7 @@ The dashboard tab's job is to pull data from the database and display as a chart
 
 - **Statistics**
 
-	The statistics show the weekly pay, pay per job, and equivalent hourly rate. To achieve this, it retrieves the data from the database in different queries, then does a quick numpy operations like `np.average()` and `np.median()`. 
+	The statistics show the weekly pay, pay per job, and equivalent hourly rate. To achieve this, it retrieves the data from the database in different queries, then does quick numpy operations like `np.average()` and `np.median()`. 
 
 	- For Weekly Pay
 
@@ -200,14 +221,14 @@ The dashboard tab's job is to pull data from the database and display as a chart
 
 ### 3. The Database Tab
 <p align="left">
-  <img src="./img/databaseTab.png" width="80%" />
+  <img src="./img/databaseTab.png" width="100%" />
 </p>
 
-The Database Tab is a [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) page for the user to interact with the database. It provides error checkings to make sure data type is compatible with the ones in the database. In addition to [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete), the Database Tab interacts with the ML_MODEL to create the predictions column. However, at its core, the Database Tab boils down to these 4 sql queries (Note: `%s` is a placeholder that python mysql connector use):
+The Database Tab is a [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) page for the user to interact with the database. It provides error checkings to make sure the data type is compatible with the ones in the database. In addition to [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete), the Database Tab interacts with the ML_MODEL to create the predictions column. However, at its core, the Database Tab boils down to these 4 SQL queries (Note: `%s` is a placeholder that Python MySQL Connector uses):
 
 - **INSERT**
 
-	Inserting a new entry is really straight forward. Once entry is checked and error-free, python mysql connector executes this query:
+	Inserting a new entry is really straightforward. Once entry is checked and error-free, Python MySQL Connector executes this query:
 
 	```sql
 	INSERT INTO jobs (job_date, job_name, job_type, hours_worked, pay) VALUES (%s, %s, %s, %s, %s)
@@ -259,11 +280,11 @@ The Database Tab is a [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_
 		SELECT * FROM jobs ORDER BY job_date DESC
 		```
 
-		But any column can be used to sort the table in ascending or descending manner.
+		But any column can be used to sort the table in ascending or descending order.
 	
 - **UPDATE**
 
-	Updating a cell in the PyQt6 GUI table is a little tricky. It involves keeping track of the id in the table cell even though it is not displayed. However, once the cell is being updated is checked and error-free, the python mysql connector executes this query:
+	Updating a cell in the PyQt6 GUI table is a little tricky. It involves keeping track of the ID in the table cell, even though it is not displayed. However, once the cell that is being updated is checked and error-free, the Python MySQL Connector executes this query:
 
 	```sql
 	UPDATE jobs SET column_name = %s WHERE id = %s
@@ -271,7 +292,7 @@ The Database Tab is a [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_
 
 - **DELETE**
 
-	Similar to `UPDATE`, `DELETE` uses the id that is kept hidden in the table cell to delete that entry from the database. The difference is that `DELETE` can delete multiple entries. The sql query looks like this depending on how many items to delete:
+	Similar to `UPDATE`, `DELETE` uses the ID that is kept hidden in the table cell to delete that entry from the database. The difference is that `DELETE` can delete multiple entries. The SQL query looks like this, depending on how many items to delete:
 
 	```sql
 	DELETE FROM jobs WHERE id IN (%s, %s, %s)
@@ -280,13 +301,13 @@ The Database Tab is a [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_
 ### 4. The Maintenance Tab
 
 <p align="left">
-  <img src="./img/maintenanceTab.png" width="80%" />
+  <img src="./img/maintenanceTab.png" width="100%" />
 </p>
 
-The Maintenance Tab is the simplest tab. Its purpose are 
+The Maintenance Tab is the simplest tab. Its purposes are 
 - **Append to the database from CSV**
 
-	Read the CSV file and insert entry one by one.
+	Read the CSV file and insert entries one by one.
 
 	```sql
 	INSERT INTO jobs (job_date, job_name, job_type, hours_worked, pay) VALUES (%s, %s, %s, %s, %s)
