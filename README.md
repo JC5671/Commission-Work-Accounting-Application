@@ -114,7 +114,7 @@ The easiest way to run this program is using VS Code.
 5. Select `Venv`.
 6. Select the latest Python interpreter.
 7. Check the `requirements.txt` and click `ok`.
-8. To run it, select `Run > Run Without Debugging` (it might take a while to start the first time).
+8. To run it, open `main.py` and select `Run > Run Without Debugging` (it might take a while to start the first time).
 9. A sample dataset is included in the project's root directory called `Commission Log - obfuscated.csv`. Navigate to the `Maintenance Tab`, click `Append From CSV`, then locate and select `Commission Log - obfuscated.csv`. Now, the database should be populated.
 
 To re-run once everything is installed, repeat steps 1 and 7.
