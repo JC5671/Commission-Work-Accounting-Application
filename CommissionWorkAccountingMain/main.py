@@ -717,7 +717,7 @@ class DashboardTab(QWidget):
 
 		# Backend Fields
 		self.dbConn = dbConn
-		self.reRender = True # used for signaling if database has been changed
+		self.dataChangedRender = True # used for signaling if database has been changed
 
 		# UI Fields
 		self.layout = QGridLayout()
@@ -756,7 +756,9 @@ class DashboardTab(QWidget):
 		self.initUI()
 
 		# Do initial render
-		self.render()
+		self.renderChartSection()
+		self.renderStatsSection()
+		self.dataChangedRender = False
 
 	def initUI(self):
 		styleSheet = """
@@ -840,17 +842,6 @@ class DashboardTab(QWidget):
 
 	# ******************************* RENDERS *******************************
 
-	def render(self):
-		"""
-		render orchestrate the rendering process of the dashboard tab.
-		Starting with the chart section, then the stats section.
-		"""
-		self.renderChartSection()
-		self.renderStatsSection()
-
-		# Set this to False here because all the rendering is done
-		self.reRender = False
-
 	def renderChartSection(self):
 		"""
 		Renders the charts section including the dropdown options, label sum, 
@@ -867,7 +858,7 @@ class DashboardTab(QWidget):
 
 		# If there has been database change or first time load up, 
 		# render the chart options first.
-		if self.reRender:
+		if self.dataChangedRender:
 			self.renderChartIntervalOptions()
 
 		# Get the current intervalselection of the comboBox
@@ -1049,7 +1040,7 @@ class DatabaseTab(QWidget):
 		# Backend Fields
 		self.dbConn = dbConn # database sql connection
 		self.MLmodel = MLmodel
-		self.reRender = False # used to signal if there are changes from maintenance tab
+		self.dataChangedRender = False # used to signal if there are changes from maintenance tab
 		self.dashboardTab = dashboardTab # ref to the dashboard to signal db change
 		
 		# UI Fields
@@ -1747,7 +1738,7 @@ class DatabaseTab(QWidget):
 		
 		# ----------------- Signal DB Change to Dashboard Tab -----------------
 
-		self.dashboardTab.reRender = True
+		self.dashboardTab.dataChangedRender = True
 
 		# -------------- Re-renders table for sorts and filters --------------
 
@@ -1799,7 +1790,7 @@ class DatabaseTab(QWidget):
 		self.MLmodel.incrementDbChangeCounter()
 
 		# Signal DB Change to Dashboard Tab
-		self.dashboardTab.reRender = True
+		self.dashboardTab.dataChangedRender = True
 
 		# Re render table to display inserted entry
 		self.renderTable()
@@ -1871,7 +1862,7 @@ class DatabaseTab(QWidget):
 		self.MLmodel.incrementDbChangeCounter(len(selectedIDs))
 
 		# Signal DB Change to Dashboard Tab
-		self.dashboardTab.reRender = True
+		self.dashboardTab.dataChangedRender = True
 
 		# Re render table for recent changes
 		self.renderTable()
@@ -2070,8 +2061,8 @@ class MaintenanceTab(QWidget):
 		
 		# ------------ Signal to dashboard tab that db is changed ------------
 
-		self.dashboardTab.reRender = True
-		self.databaseTab.reRender = True
+		self.dashboardTab.dataChangedRender = True
+		self.databaseTab.dataChangedRender = True
 		
 		# ------------------- Display Confirmation Message -------------------
 
@@ -2143,8 +2134,8 @@ class MaintenanceTab(QWidget):
 		self.MLmodel.reset()
 
 		# Signal to dashboard tab that db is changed
-		self.dashboardTab.reRender = True
-		self.databaseTab.reRender = True
+		self.dashboardTab.dataChangedRender = True
+		self.databaseTab.dataChangedRender = True
 
 		# ------------------- Display Confirmation Message -------------------
 
@@ -2217,11 +2208,13 @@ class MainWindow(QMainWindow):
 		"""
 		if tabIndex == 0:
 			# print("on dashboard tab")
-			if self.dashboardTab.reRender:
-				self.dashboardTab.render()
+			if self.dashboardTab.dataChangedRender:
+				self.dashboardTab.renderChartSection()
+				self.dashboardTab.renderStatsSection()
+				self.dashboardTab.dataChangedRender = False
 		elif tabIndex == 1:
 			# print("on database tab")
-			if self.databaseTab.reRender:
+			if self.databaseTab.dataChangedRender:
 				# uncheck every filters
 				self.databaseTab.filterByDate["checkBox"].setChecked(False)
 				self.databaseTab.filterByJobType["checkBox"].setChecked(False)
@@ -2231,7 +2224,7 @@ class MainWindow(QMainWindow):
 				self.databaseTab.renderFiltersUI()
 				self.databaseTab.renderTable()
 				# set to false
-				self.databaseTab.reRender = False
+				self.databaseTab.dataChangedRender = False
 		elif tabIndex == 2:
 			# print("on maintenance tab")
 			pass
