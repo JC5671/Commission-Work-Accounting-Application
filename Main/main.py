@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QTabWidget, # F
 							QLabel, QLineEdit, QDateEdit, QComboBox, # Other general widgets
 							QCheckBox, QPushButton, QRadioButton, QButtonGroup) 
 from PyQt6.QtCore import Qt, QDate, QTimer, QRegularExpression
-from PyQt6.QtGui import QDoubleValidator, QRegularExpressionValidator
+from PyQt6.QtGui import QRegularExpressionValidator
 
 # Libraries for ML
 import pandas as pd

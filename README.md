@@ -108,7 +108,7 @@ The purpose of this project is twofold: to streamline my personal workflow and t
 The easiest way to run this program is using VS Code.
 
 1. Make sure that Python 3 is installed. [https://www.python.org/](https://www.python.org/).
-2. In VS Code, click `File > Open Folder` and open the `CommissionWorkAccountingMain` folder only.
+2. In VS Code, click `File > Open Folder` and open the `main` folder only.
 3. Open Command Palette `View > Command Palette`.
 4. Search for `Python: Create Environment` and select it. 
 5. Select `Venv`.
