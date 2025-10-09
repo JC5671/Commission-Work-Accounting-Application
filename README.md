@@ -15,7 +15,7 @@
 ## The Motivation
 Due to the nature of my work being a commission-based role, the pay rate varies, and payment is not immediately released until paycheck day. Previously, I used Excel to track data (date, job name, job type, hours worked, and pay) and calculate the average pay rate to extrapolate future pay. 
 
-After experimenting with machine learning in a separate project, [Commission Work - Machine Learning Research](https://github.com/JC5671/Commission-Work-Machine-Learning-Research), I found a strong correlation showing that job type and hours worked can be used to predict future pay, particularly using a Decision Tree Regressor model.
+After experimenting with machine learning (in the Research folder), I found a strong correlation showing that job type and hours worked can be used to predict future pay, particularly using a Decision Tree Regressor model.
 
 Building on those insights, I decided to create a full [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) application that allows me to log job entries into a custom database interface where I can sort, filter, search, insert, edit, and delete records — all tailored to my workflow. It also generates statistics and charts, and incorporates predictive modeling using a Decision Tree Regressor.
 
