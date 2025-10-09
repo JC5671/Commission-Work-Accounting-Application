@@ -11,5 +11,5 @@ __pycache__/
 *.pyc
 
 # Ignore ML specific data
-CommissionWorkAccountingMain/model.pkl
-CommissionWorkAccountingMain/modelConfig.json
+Main/model.pkl
+Main/modelConfig.json
